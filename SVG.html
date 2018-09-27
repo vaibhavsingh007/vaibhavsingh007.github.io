@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CS594 HW01</title>
+
+    <!-- Bootstrap -->
+    <!--<link href="/css/bootstrap.css" rel="stylesheet">-->
+    <link href="css/starter-template.css" rel="stylesheet">
+    <link href="css/cs594-hw01.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/index.html">CS594 HW01</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/Visualizations.html">Visualizations</a></li>
+                    <li class="active"><a href="/SVG.html">SVGs</a></li>
+                    <li><a href="/About.html">About</a></li>
+                    <li><a href="/Credits.html">Credits</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="starter-template">
+            <p class="lead">Click the circle to start motion!</p>
+            <p></p>
+            <div>
+                <svg id="svg-circle" width="400" height="100">
+                    <g>
+                        <circle id="a-circle" class="svg-shape" cx="50" cy="50" r="40" fill="yellow" text-decoration="blah" />
+                        <text x="20" y="55" font-family="Verdana" font-size="20" fill="blue">A Circle</text>
+                        <animate xlink:href="#a-circle" attributeName="fill" from="yellow" to="green"
+                                 dur="1s" repeatCount="indefinite" />
+                        <animate xlink:href="#a-circle"
+                                 attributeName="cx"
+                                 from="50"
+                                 to="200"
+                                 dur="5s"
+                                 begin="click"
+                                 fill="freeze"
+                                 id="circ-anim" />
+
+
+                    </g>
+                    Sorry, your browser does not support inline SVG.
+                </svg>
+
+            </div>
+            
+            <div>
+                <svg id="svg-rect" width="400" height="100">
+                    <g>
+                        <rect id="a-rect" class="svg-shape" width="300" height="100" fill="blue" />
+                        <text x="20" y="55" font-family="Verdana" font-size="20" fill="yellow">A Rectangle</text>
+                        <animate xlink:href="#a-rect" attributeName="fill" from="blue" to="white"
+                                 dur="2s" repeatCount="indefinite" />
+                        <animate xlink:href="#a-rect"
+                                 attributeName="x"
+                                 from="50"
+                                 to="200"
+                                 dur="5s"
+                                 begin="circ-anim.begin + 1s"
+                                 fill="freeze"
+                                 id="rect-anim" />
+                    </g>
+                </svg>
+            </div>
+            
+            <div>
+                <svg id="svg-poly" width="500" height="210">
+                    <g>
+                        <polygon id="a-poly" class="svg-shape" points="200,10 250,190 160,210" fill="lime" />
+                        <text x="170" y="180" font-family="Verdana" font-size="20" fill="blue">A Triangle</text>
+                        <animate xlink:href="#a-poly" attributeName="fill" from="lime" to="red"
+                                 dur="3s" repeatCount="indefinite" />
+                        <animate xlink:href="#a-poly"
+                                 attributeName="points"
+                                 from="50"
+                                 to="300,10 250,190 160,210"
+                                 dur="5s"
+                                 begin="rect-anim.begin + 1s"
+                                 fill="remove"
+                                 id="rect-anim" />
+                    </g>
+                </svg>
+            </div>
+            
+        </div>
+
+    </div><!-- /.container -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!--<script src="/js/bootstrap.js"></script>-->
+    <!--<script src="/js/cs594-hw01.js"></script>-->
+</body>
+</html>
