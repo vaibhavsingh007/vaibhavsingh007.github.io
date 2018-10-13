@@ -3,7 +3,7 @@
 /* Get or create the application global variable */
 var App = App || {};
 
-var ParticleSystem = function() {
+var ParticleSystem = function () {
 
     // setup the pointer to the scope 'this' variable
     var self = this;
@@ -17,37 +17,38 @@ var ParticleSystem = function() {
     // bounds of the data
     var bounds = {};
 
-    var coordPrecision = 2;
-    var planeIncrements = 0.05;
+    var coordPrecision = 1;
+    var planeIncrements = 0.5;
 
     // create the containment box.
     // This cylinder is only to guide development.
     // TODO: Remove after the data has been rendered
-    self.drawContainment = function() {
+    self.drawContainment = function () {
 
         // get the radius and height based on the data bounds
-        var radius = (bounds.maxX - bounds.minX)/2.0 + 1;
+        var radius = (bounds.maxX - bounds.minX) / 2.0 + 1;
         var height = (bounds.maxY - bounds.minY) + 1;
 
         // create a cylinder to contain the particle system
-        var geometry = new THREE.CylinderGeometry( radius, radius, height, 32 );
-        var material = new THREE.MeshBasicMaterial( {color: 0xffff00, wireframe: true} );
-        var cylinder = new THREE.Mesh( geometry, material );
+        var geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
+        var material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true });
+        var cylinder = new THREE.Mesh(geometry, material);
 
         // add the containment to the scene
         sceneObject.add(cylinder);
     };
 
     var colors = [];
+    var pointCloud;
 
     // creates the particle system
-    self.createParticleSystem = function() {
+    self.createParticleSystem = function () {
 
         // use self.data to create the particle system
         //This will add a starfield to the background of a scene
         var starsGeometry = new THREE.Geometry();
         var color = new THREE.Color(1, 1, 1);
-        
+
         var k = 0;
 
         for (var i = 0; i < data.length; i++) {
@@ -56,7 +57,7 @@ var ParticleSystem = function() {
             star.x = data[i].X;
             star.y = data[i].Z;
             star.z = data[i].Y;
-            
+
             var intensity = data[i].concentration;
             //colors[3 * k] = color.r * intensity;
             //colors[3 * k + 1] = color.g * intensity;
@@ -69,20 +70,20 @@ var ParticleSystem = function() {
 
         starsGeometry.colors = colors;
         starsGeometry.computeBoundingBox();
-        var starsMaterial = new THREE.PointCloudMaterial({ size: 0.02, vertexColors: THREE.VertexColors });
+        var starsMaterial = new THREE.PointCloudMaterial({ size: 0.03, vertexColors: THREE.VertexColors, side: THREE.DoubleSide });
         //new THREE.PointsMaterial({ color: 0x888888 });
 
-        var pointCloud = new THREE.PointCloud(starsGeometry, starsMaterial);
+        pointCloud = new THREE.PointCloud(starsGeometry, starsMaterial);
         //pointCloud.scale.set(2, 2, 2);
         pointCloud.position.set(0, -5, 0);
         sceneObject.add(pointCloud);
 
         // Add plane
         var planeGeometry = new THREE.PlaneGeometry(15, 15);
-        var planeMaterial = new THREE.MeshBasicMaterial({ color: 0xc200ff, side: THREE.DoubleSide });
+        var planeMaterial = new THREE.MeshBasicMaterial({ color: 0xb0b0b0, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
         self.plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        self.matrixAutoUpdate = false;
-        
+        self.plane.matrixAutoUpdate = false;
+
         //plane.rotateX(- Math.PI / 2);
 
         console.log(self.plane.position.z);
@@ -99,26 +100,43 @@ var ParticleSystem = function() {
         self.show2Dpoints(newZ, colors);
     };
 
+    var previous2DColors = [];
     self.show2Dpoints = function (planeZ, colors) {
         var pointColors = [];
         var data2D = data.filter((d, i) => {
             var pointY = parseFloat(d.Y.toFixed(coordPrecision));
             if (pointY === planeZ) {
-                pointColors.push(colors[i]);
+                pointColors.push({ c: colors[i].clone(), i: i });
                 return pointY === planeZ;
             }
         });
 
-        showPoints(data2D, pointColors);
+        showPoints(data2D, pointColors.map(pc => pc.c));
+        self.highlightPlanePoints(pointColors, previous2DColors);
+        previous2DColors = pointColors;
+    };
+
+    self.highlightPlanePoints = function (pointColors, previous2DColors) {
+        var color = new THREE.Color(255, 0, 0);
+
+        // Set current indices
+        for (var m = 0; m < pointColors.length; m++) {
+            pointCloud.geometry.colors[pointColors[m].i].set(color.clone());
+        }
+
+        for (var n = 0; n < previous2DColors.length; n++) {
+            pointCloud.geometry.colors[previous2DColors[n].i].set(previous2DColors[n].c);
+        }
+        pointCloud.geometry.colorsNeedUpdate = true;
     };
 
     // data loading function
-    self.loadData = function(file){
+    self.loadData = function (file) {
 
         // read the csv file
         d3.csv(file)
-        // iterate over the rows of the csv file
-            .row(function(d) {
+            // iterate over the rows of the csv file
+            .row(function (d) {
 
                 // get the min bounds
                 bounds.minX = Math.min(bounds.minX || Infinity, d.Points0);
@@ -145,7 +163,7 @@ var ParticleSystem = function() {
                 });
             })
             // when done loading
-            .get(function() {
+            .get(function () {
                 // draw the containment cylinder
                 // TODO: Remove after the data has been rendered
                 //self.drawContainment();
@@ -160,12 +178,12 @@ var ParticleSystem = function() {
     var publiclyAvailable = {
 
         // load the data and setup the system
-        initialize: function(file){
+        initialize: function (file) {
             self.loadData(file);
         },
 
         // accessor for the particle system
-        getParticleSystems : function() {
+        getParticleSystems: function () {
             return sceneObject;
         },
 
